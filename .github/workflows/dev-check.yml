@@ -1,4 +1,4 @@
-name: Manual Workflow For Dependency Check
+name: Dependency Check
 
 on:
   workflow_dispatch:
@@ -7,17 +7,21 @@ on:
         description: 'Triggered For Dependency Check'
         required: false
         default: 'dependency check'
-      SNAPSHOT_TAG:
-        description: 'If certain snapshot dependencies are required to be omitted'
-        required: true
+      SKIP_DEPENDENCIES:
+        description: 'List of dependencies to be skipped'
+        required: false
+        default: ''
+      DEPENDENCY_VERSIONS:
+        description: 'Specify versions for specific dependencies'
+        required: false
+        default: ''
+
 jobs:
-  maven-release-preparation:
-    uses: mosip/kattu/.github/workflows/dev-check.yml@master
+  dependency-check:
+    uses: Rakshitha650/kattu/.github/workflows/dev-check.yml@master
     with:
       MESSAGE: ${{ inputs.MESSAGE }}
-      RELEASE_TAG: ${{ inputs.RELEASE_TAG }}
-      SNAPSHOT_TAG: ${{ inputs.SNAPSHOT_TAG }}
-      BASE: ${{ inputs.BASE }}
+      SKIP_DEPENDENCIES: ${{ inputs.SKIP_DEPENDENCIES }}
+      DEPENDENCY_VERSIONS: ${{ inputs.DEPENDENCY_VERSIONS }}
     secrets:
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      ACTION_PAT: ${{ secrets.ACTION_PAT }}
