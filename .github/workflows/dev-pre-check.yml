@@ -1,0 +1,31 @@
+name: Pre-release Checklist
+
+on:
+  push:
+    types:
+      - synchronize
+      - opened
+      - reopened
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: '11'
+
+      - name: Check Artifact Version
+        run: |
+          # Extract the dynamically provided artifact version from your context
+          ARTIFACT_VERSION=${{ secrets.DYNAMIC_ARTIFACT_VERSION }}
+
+          # Search for the artifact version in POM files
+          echo "Searching for artifact version: $ARTIFACT_VERSION"
+          find . -name 'pom.xml' -print0 | xargs -0 grep -H -E "<artifactId>|<version>$ARTIFACT_VERSION</version>" | awk -F: '{print $1}' | sort -u
