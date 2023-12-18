@@ -28,6 +28,12 @@ jobs:
         run: |
           chmod +x ./pre-registration/pom.xml
 
+      - name: Debug
+        run: |
+          echo "ARTIFACT_VERSION: ${{ secrets.DYNAMIC_ARTIFACT_VERSION }}"
+          find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<artifactId>|<version>${{ secrets.DYNAMIC_ARTIFACT_VERSION }}</version>|<dependency>\s*<version>${{ secrets.DYNAMIC_ARTIFACT_VERSION }}</version>" | sort -u
+          
+
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from your context
