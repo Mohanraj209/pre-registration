@@ -29,3 +29,20 @@ jobs:
             echo "Artifacts and Dependencies in $file:"
             grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>/ || /<version>/ || /<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
           done
+          
+      - name: Check Artifact Version
+        run: |
+          # Extract the dynamically provided artifact version from your context
+          ARTIFACT_VERSION=${{ secrets.DYNAMIC_ARTIFACT_VERSION }}
+
+          # Search for the artifact version in POM files as artifact or dependency version
+          echo "Searching for artifact version: $ARTIFACT_VERSION"
+          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<artifactId>|<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | sort -u)
+
+          if [ -z "$files" ]; then
+            echo "Artifact version $ARTIFACT_VERSION not found in any POM files."
+            exit 1
+          else
+            echo "Artifact version $ARTIFACT_VERSION found in the following files:"
+            echo "$files"
+          fi          
