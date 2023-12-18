@@ -29,6 +29,12 @@ jobs:
           # Extract the dynamically provided artifact version from your context
           ARTIFACT_VERSION=${{ secrets.DYNAMIC_ARTIFACT_VERSION }}
 
-          # Search for the artifact version in POM files
+          # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $ARTIFACT_VERSION"
-          find . -name 'pom.xml' -print0 | xargs -0 grep -H -E "<artifactId>|<version>$ARTIFACT_VERSION</version>" | awk -F: '{print $1}' | sort -u
+          files= $(find . -name 'pom.xml' -print0 | xargs -0 grep -H -E "<artifactId>|<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | awk -F: '{print $1}' | sort -u )
+          
+          # List all artifacts and their dependent versions
+          for file in $files; do
+            echo "Artifact in $file:"
+            grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>/ || /<version>/ || /<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
+          done
