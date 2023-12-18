@@ -1,11 +1,14 @@
 name: Pre-release Checklist
 
 on:
-  pull_request:
-    types:
-      - synchronize
-      - opened
-      - reopened
+  pusht:
+    branches:
+      - '!release-branch'
+      - release*
+      - master
+      - 1.*
+      - develop
+      - MOSIP*
 
 jobs:
   check-versions:
