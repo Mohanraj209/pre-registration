@@ -28,5 +28,4 @@ jobs:
           for file in $pom_files; do
             echo "Artifacts and Dependencies in $file:"
             grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>/ || /<version>/ || /<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
-            ls
           done
