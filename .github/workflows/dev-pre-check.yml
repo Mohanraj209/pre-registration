@@ -24,6 +24,10 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: Grant permissions
+        run: |
+          chmod +x ./pre-registration/pom.xml          
+
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from your context
