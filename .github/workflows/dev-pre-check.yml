@@ -1,14 +1,11 @@
 name: Pre-release Checklist
 
 on:
-  push:
-    branches:
-      - '!release-branch'
-      - release*
-      - master
-      - 1.*
-      - develop
-      - MOSIP*
+  pull_request:
+    types:
+      - synchronize
+      - opened
+      - reopened
 
 jobs:
   check-versions:
@@ -26,7 +23,7 @@ jobs:
 
       - name: Grant permissions
         run: |
-          chmod +x ./pre-registration/pom.xml          
+          chmod +x ./pre-registration/pom.xml
 
       - name: Check Artifact Version
         run: |
@@ -35,8 +32,8 @@ jobs:
 
           # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $ARTIFACT_VERSION"
-          files= $(find . -name 'pom.xml' -print0 | xargs -0 grep -H -E "<artifactId>|<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | awk -F: '{print $1}' | sort -u )
-          
+          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<artifactId>|<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | sort -u)
+
           # List all artifacts and their dependent versions
           for file in $files; do
             echo "Artifact in $file:"
