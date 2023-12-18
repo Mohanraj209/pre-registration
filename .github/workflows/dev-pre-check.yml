@@ -1,17 +1,12 @@
-name: Pre-release Checklist
+name: List Artifacts and Dependencies
 
 on:
   push:
     branches:
-      - '!release-branch'
-      - release*
-      - master
-      - 1.*
       - develop
-      - MOSIP*
 
 jobs:
-  check-versions:
+  list-artifacts:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,27 +19,14 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Grant permissions
+      - name: List Artifacts and Dependencies
         run: |
-          chmod +x ./pre-registration/pom.xml
+          # Search for all POM files in the repository
+          pom_files=$(find . -name 'pom.xml')
 
-      - name: Debug
-        run: |
-          echo "ARTIFACT_VERSION: ${{ secrets.DYNAMIC_ARTIFACT_VERSION }}"
-          find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<artifactId>|<version>${{ secrets.DYNAMIC_ARTIFACT_VERSION }}</version>|<dependency>\s*<version>${{ secrets.DYNAMIC_ARTIFACT_VERSION }}</version>" | sort -u
-          
-
-      - name: Check Artifact Version
-        run: |
-          # Extract the dynamically provided artifact version from your context
-          ARTIFACT_VERSION=${{ secrets.DYNAMIC_ARTIFACT_VERSION }}
-
-          # Search for the artifact version in POM files as artifact or dependency version
-          echo "Searching for artifact version: $ARTIFACT_VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<artifactId>|<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | sort -u)
-
-          # List all artifacts and their dependent versions
-          for file in $files; do
-            echo "Artifact in $file:"
+          # Loop through each POM file and extract artifact and dependency information
+          for file in $pom_files; do
+            echo "Artifacts and Dependencies in $file:"
             grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>/ || /<version>/ || /<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
+            ls
           done
