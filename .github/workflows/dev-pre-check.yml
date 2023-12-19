@@ -1,9 +1,12 @@
 name: List Artifacts and Dependencies
 
 on:
-  push:
-    branches:
-      - develop
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run the workflow on'
+        required: true
+        default: 'develop'
 
 jobs:
   list-artifacts:
@@ -29,7 +32,7 @@ jobs:
             echo "Artifacts and Dependencies in $file:"
             grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>/ || /<version>/ || /<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
           done
-          
+
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from your context
@@ -45,4 +48,4 @@ jobs:
           else
             echo "Artifact version $ARTIFACT_VERSION found in the following files:"
             echo "$files"
-          fi          
+          fi
