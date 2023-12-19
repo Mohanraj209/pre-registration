@@ -39,11 +39,11 @@ jobs:
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from the user input
-          ARTIFACT_VERSION=${{ github.event.inputs.artifact_version }}
+          VERSION=${{ github.event.inputs.artifact_version }}
 
           # Search for the artifact version in POM files as artifact or dependency version
-          echo "Searching for artifact version: $ARTIFACT_VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>|<version>$ARTIFACT_VERSION-SNAPSHOT</version>|<dependency>\s*<version>$ARTIFACT_VERSION-SNAPSHOT</version>" | sort -u)
+          echo "Searching for artifact version: $VERSION"
+          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" | sort -u)
 
           if [ -z "$files" ]; then
             echo "Artifact version $ARTIFACT_VERSION not found in any POM files."
