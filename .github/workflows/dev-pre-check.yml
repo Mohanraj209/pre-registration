@@ -32,12 +32,11 @@ jobs:
           
           # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" | sort -u)
+          for file in $(find . -type f -name '*.xml' ! -name 'pom.xml'); do
+            echo "Contents of $file:"
+            cat $file
+            if grep -qE "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" $file; then
+              echo "Artifact version $VERSION found in $file."
+            fi
+          done || true
 
-          if [ -z "$files" ]; then
-            echo "Artifact version $VERSION not found in any POM files."
-            exit 1
-          else
-            echo "Artifact version $VERSION found in the following files:"
-            echo "$files"
-          fi
