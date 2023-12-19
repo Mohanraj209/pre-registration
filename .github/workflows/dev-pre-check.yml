@@ -7,7 +7,7 @@ on:
         description: 'Branch to run the workflow on'
         required: true
         default: 'develop'
-      artifact_version:
+      VERSION:
         description: 'Artifact version to search for'
         required: true
 
@@ -39,16 +39,16 @@ jobs:
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from the user input
-          VERSION=${{ github.event.inputs.artifact_version }}
+          VERSION=${{ github.event.inputs.VERSION }}
 
           # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" | sort -u)
+          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>" | sort -u)
 
           if [ -z "$files" ]; then
-            echo "Artifact version $ARTIFACT_VERSION not found in any POM files."
+            echo "Artifact version $VERSION not found in any POM files."
             exit 1
           else
-            echo "Artifact version $ARTIFACT_VERSION found in the following files:"
+            echo "Artifact version $VERSION found in the following files:"
             echo "$files"
           fi
