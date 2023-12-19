@@ -7,6 +7,9 @@ on:
         description: 'Branch to run the workflow on'
         required: true
         default: 'develop'
+      artifact_version:
+        description: 'Artifact version to search for'
+        required: true
 
 jobs:
   list-artifacts:
@@ -35,8 +38,8 @@ jobs:
 
       - name: Check Artifact Version
         run: |
-          # Extract the dynamically provided artifact version from your context
-          ARTIFACT_VERSION=${{ secrets.DYNAMIC_ARTIFACT_VERSION }}
+          # Extract the dynamically provided artifact version from the user input
+          ARTIFACT_VERSION=${{ github.event.inputs.artifact_version }}
 
           # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $ARTIFACT_VERSION"
