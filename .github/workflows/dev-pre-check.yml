@@ -33,10 +33,10 @@ jobs:
           # Search for all POM files in the repository
           pom_files=$(find . -name 'pom.xml')
 
-          # Loop through each POM file and extract artifact and dependency information
+          # Loop through each POM file and extract version information
           for file in $pom_files; do
             echo "Artifacts and Dependencies in $file:"
-            xmlstarlet sel -t -m '//artifactId|//version' -v . -n $file | paste -d ' ' - - -
+            xmlstarlet sel -t -m '//version' -v . -n $file | grep -E "$VERSION|${VERSION}-SNAPSHOT" || true
           done
 
       - name: Check Artifact Version
@@ -44,14 +44,11 @@ jobs:
           # Extract the dynamically provided artifact version from the user input
           VERSION=${{ github.event.inputs.VERSION }}
 
-          # Search for the artifact version in POM files as artifact or dependency version
+          # Search for the artifact version in the output of the previous step
           echo "Searching for artifact version: $VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>" | sort -u)
-
-          if [ -z "$files" ]; then
+          if [ -n "$(grep -E "$VERSION|${VERSION}-SNAPSHOT" ${{ github.workspace }}/output.txt)" ]; then
+            echo "Artifact version $VERSION found in the POM files."
+          else
             echo "Artifact version $VERSION not found in any POM files."
             exit 1
-          else
-            echo "Artifact version $VERSION found in the following files:"
-            echo "$files"
           fi
