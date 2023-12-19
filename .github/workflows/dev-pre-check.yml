@@ -33,7 +33,7 @@ jobs:
           # Loop through each POM file and extract artifact and dependency information
           for file in $pom_files; do
             echo "Artifacts and Dependencies in $file:"
-            grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>/ || /<version>/ || /<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
+            grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
           done
 
       - name: Check Artifact Version
@@ -43,7 +43,7 @@ jobs:
 
           # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $ARTIFACT_VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<artifactId>|<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | sort -u)
+          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$ARTIFACT_VERSION</version>|<dependency>\s*<version>$ARTIFACT_VERSION</version>" | sort -u)
 
           if [ -z "$files" ]; then
             echo "Artifact version $ARTIFACT_VERSION not found in any POM files."
