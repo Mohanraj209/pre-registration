@@ -33,7 +33,7 @@ jobs:
           # Loop through each POM file and extract artifact and dependency information
           for file in $pom_files; do
             echo "Artifacts and Dependencies in $file:"
-            grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
+            awk '/<artifactId>|<version>|<dependency>\s*<version>/' $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
           done
 
       - name: Check Artifact Version
@@ -47,7 +47,7 @@ jobs:
           for file in $(find . -type f -name '*.xml' ! -name 'pom.xml'); do
             echo "Contents of $file:"
             cat $file
-            if grep -qE "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" $file; then
+            if python -c "import xml.etree.ElementTree as ET; tree = ET.parse('$file'); root = tree.getroot(); versions = [e.text for e in root.findall('.//version')]; print('$VERSION' in versions)"; then
               echo "Artifact version $VERSION found in $file."
               found=true
             fi
