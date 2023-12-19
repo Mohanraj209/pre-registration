@@ -25,6 +25,9 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: Install xmlstarlet
+        run: sudo apt-get update && sudo apt-get install -y xmlstarlet
+
       - name: List Artifacts and Dependencies
         run: |
           # Search for all POM files in the repository
@@ -33,7 +36,7 @@ jobs:
           # Loop through each POM file and extract artifact and dependency information
           for file in $pom_files; do
             echo "Artifacts and Dependencies in $file:"
-            grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
+            xmlstarlet sel -t -m '//artifactId|//version' -v . -n $file | paste -d ' ' - - -
           done
 
       - name: Check Artifact Version
