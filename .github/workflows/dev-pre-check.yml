@@ -37,16 +37,16 @@ jobs:
           for file in $pom_files; do
             echo "Artifacts and Dependencies in $file:"
             xmlstarlet sel -t -m '//version' -v . -n $file | grep -E "$VERSION|${VERSION}-SNAPSHOT" || true
-          done
+          done > $GITHUB_WORKSPACE/output.txt
 
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from the user input
           VERSION=${{ github.event.inputs.VERSION }}
 
-          # Search for the artifact version in the output of the previous step
+          # Search for the artifact version in the output file
           echo "Searching for artifact version: $VERSION"
-          if [ -n "$(grep -E "$VERSION|${VERSION}-SNAPSHOT" ${{ github.workspace }}/output.txt)" ]; then
+          if [ -n "$(grep -E "$VERSION|${VERSION}-SNAPSHOT" $GITHUB_WORKSPACE/output.txt)" ]; then
             echo "Artifact version $VERSION found in the POM files."
           else
             echo "Artifact version $VERSION not found in any POM files."
