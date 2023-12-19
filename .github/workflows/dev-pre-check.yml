@@ -30,6 +30,9 @@ jobs:
           # Search for all POM files in the repository
           pom_files=$(find . -name 'pom.xml')
 
+          # Extract the dynamically provided artifact version from the user input
+          VERSION=${{ github.event.inputs.VERSION }}
+          
           # Search for the artifact version in POM files
           echo "Searching for artifact version: $VERSION"
           for file in $pom_files; do
