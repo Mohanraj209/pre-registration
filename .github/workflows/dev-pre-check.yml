@@ -1,4 +1,4 @@
-name: Check Artifact Version
+name: List Artifacts and Check Version
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ on:
         required: true
 
 jobs:
-  check-artifact-version:
+  list-artifacts:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,18 +25,35 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: List Artifacts and Dependencies
+        run: |
+          # Search for all POM files in the repository
+          pom_files=$(find . -name 'pom.xml')
+
+          # Loop through each POM file and extract artifact and dependency information
+          for file in $pom_files; do
+            echo "Artifacts and Dependencies in $file:"
+            grep -E "<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
+          done
+
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from the user input
           VERSION=${{ github.event.inputs.VERSION }}
-          
+
           # Search for the artifact version in POM files as artifact or dependency version
           echo "Searching for artifact version: $VERSION"
+          found=false
           for file in $(find . -type f -name '*.xml' ! -name 'pom.xml'); do
             echo "Contents of $file:"
             cat $file
             if grep -qE "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" $file; then
               echo "Artifact version $VERSION found in $file."
+              found=true
             fi
-          done || true
-
+          done
+          
+          if [ "$found" = false ]; then
+            echo "Artifact version $VERSION not found in any POM files."
+            exit 1
+          fi
