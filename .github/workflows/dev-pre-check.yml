@@ -1,4 +1,4 @@
-name: List Artifacts and Check Version
+name: Check Artifact Version
 
 on:
   workflow_dispatch:
@@ -12,47 +12,28 @@ on:
         required: true
 
 jobs:
-  list-artifacts:
+  check-artifact:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up JDK
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: '11'
-
-      - name: List Artifacts and Dependencies
-        run: |
-          # Search for all POM files in the repository
-          pom_files=$(find . -name 'pom.xml')
-
-          # Loop through each POM file and extract artifact and dependency information
-          for file in $pom_files; do
-            echo "Artifacts and Dependencies in $file:"
-            awk '/<artifactId>|<version>|<dependency>\s*<version>/' $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
-          done
-
       - name: Check Artifact Version
         run: |
           # Extract the dynamically provided artifact version from the user input
           VERSION=${{ github.event.inputs.VERSION }}
 
-          # Search for the artifact version in POM files as artifact or dependency version
+          # Search for the artifact version in POM files
           echo "Searching for artifact version: $VERSION"
           found=false
           for file in $(find . -type f -name 'pom.xml'); do
-            echo "Contents of $file:"
-            cat $file
-            if python -c "import xml.etree.ElementTree as ET; tree = ET.parse('$file'); root = tree.getroot(); versions = [e.text for e in root.findall('.//version')]; print('$VERSION' in versions)"; then
+            if grep -q "<version>$VERSION</version>" "$file"; then
               echo "Artifact version $VERSION found in $file."
               found=true
             fi
           done
-          
+
           if [ "$found" = false ]; then
             echo "Artifact version $VERSION not found in any POM files."
             exit 1
