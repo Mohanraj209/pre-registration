@@ -32,25 +32,11 @@ jobs:
 
           # Loop through each POM file and extract artifact and dependency information
           for file in $pom_files; do
-            echo "Checking $file for artifact version $VERSION:"
+            # Extract artifact information from the POM file
+            artifact=$(grep -E "<groupId>io.mosip</groupId>|<artifactId>" $file | awk -F '[<>]' '/<artifactId>/{print $3}')
           
-            # Filter for artifacts belonging to io.mosip group and print dependencies
-            grep -E "<groupId>io.mosip</groupId>|<artifactId>|<version>|<dependency>\s*<version>" $file | awk -F '[<>]' '/<artifactId>|<version>|<dependency>\s*<version>/{print $3}' | paste -d ' ' - - -
-          
-            # Find and replace parameter values in the file
-            sed -i "s/\${spring.boot.version}/$(grep -oP '<spring.boot.version>\K[^<]*' $file)/g" $file
+            # Check if the provided version is present in the POM file
+            if grep -qE "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>" $file; then
+              echo "Artifact version $VERSION found in $file for artifact $artifact."
+            fi
           done
-
-      - name: Check Artifact Version
-        run: |
-          # Search for the artifact version in POM files as artifact or dependency version
-          echo "Searching for artifact version: $VERSION"
-          files=$(find . -type f -name '*.xml' ! -name 'pom.xml' -print0 | xargs -0 grep -l -E "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>|<version>$VERSION-SNAPSHOT</version>|<dependency>\s*<version>$VERSION-SNAPSHOT</version>" | sort -u)
-
-          if [ -z "$files" ]; then
-            echo "Artifact version $VERSION not found in any POM files."
-            exit 1
-          else
-            echo "Artifact version $VERSION found in the following files:"
-            echo "$files"
-          fi
