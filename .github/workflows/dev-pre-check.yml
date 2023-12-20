@@ -32,11 +32,15 @@ jobs:
 
           # Loop through each POM file and extract artifact and dependency information
           for file in $pom_files; do
-            # Extract artifact information from the POM file
-            artifact=$(grep -E "<groupId>io.mosip</groupId>|<artifactId>" $file | awk -F '[<>]' '/<artifactId>/{print $3}')
-          
+            # Extract artifacts and dependencies from the POM file
+            artifacts=$(grep -E "<groupId>io.mosip</groupId>|<artifactId>" $file | awk -F '[<>]' '/<artifactId>/{print $3}')
+            dependencies=$(grep -E "<groupId>io.mosip</groupId>|<artifactId>" $file | awk -F '[<>]' '/<dependency>/{print $3}')
+
+            # Combine artifact and dependency information
+            all_elements="$artifacts $dependencies"
+
             # Check if the provided version is present in the POM file
-            if grep -qE "<version>$VERSION</version>|<dependency>\s*<version>$VERSION</version>" $file; then
-              echo "Artifact version $VERSION found in $file for artifact $artifact."
+            if echo "$all_elements" | grep -qw "$VERSION"; then
+              echo "Artifact version $VERSION found in $file for artifacts and dependencies: $all_elements."
             fi
           done
