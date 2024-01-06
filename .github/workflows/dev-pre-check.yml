@@ -1,4 +1,4 @@
-name: List Artifacts and Dependencies
+name: Developer Pre-Release Check
 
 on:
   workflow_dispatch:
@@ -8,39 +8,33 @@ on:
         required: true
         default: 'develop'
       VERSION:
-        description: 'Artifact version to search for'
+        description: 'version_to_check'
         required: true
 
 jobs:
-  list-artifacts:
+  pre-release-check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up JDK
+      - name: Setup Java
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: List Artifacts and Dependencies
+      - name: List Artifacts and Dependency Versions
         run: |
-          # Search for all POM files in the repository
-          pom_files=$(find . -name 'pom.xml')
+          # Your script or command to list artifacts and dependencies
+          grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' $(find . -name 'pom.xml') | awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ {printf("\n")}'
+          # Example command: python list_artifacts.py
 
-          # Loop through each POM file and extract artifact and dependency information
-          for file in $pom_files; do
-            # Extract artifacts and dependencies from the POM file
-            artifacts=$(grep -E "<groupId>io.mosip</groupId>|<artifactId>" $file | awk -F '[<>]' '/<artifactId>/{print $3}')
-            dependencies=$(grep -E "<groupId>io.mosip</groupId>|<artifactId>" $file | awk -F '[<>]' '/<dependency>/{print $3}')
+      - name: Check Dynamically Provided Artifact Version
+        run: |
+          # Your script or command to check dynamically provided artifact version
+          version_to_check: ${{ inputs.VERSION }}
+          grep -r -E "<artifactId>[^<]+</artifactId>|<version>$version_to_check</version>" --include="pom.xml" .
 
-            # Combine artifact and dependency information
-            all_elements="$artifacts $dependencies"
-
-            # Check if the provided version is present in the POM file
-            if echo "$all_elements" | grep -qw "$VERSION"; then
-              echo "Artifact version $VERSION found in $file for artifacts and dependencies: $all_elements."
-            fi
-          done
+# Example command: python check_version.py 2.0.1
