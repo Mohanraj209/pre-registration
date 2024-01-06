@@ -28,13 +28,10 @@ jobs:
       - name: List Artifacts and Dependency Versions
         run: |
           # Script to list artifacts and dependency versions
-          find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{print "Artifact version '${{ inputs.VERSION }}' found in " FILENAME " for artifact " artifact}' {} +
+          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
+          awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
+          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
 
-      - name: Replace Parameterized Values
-        run: |
-          # Script to replace parameterized values
-          version_to_check="${{ inputs.VERSION }}"
-          find . -name 'pom.xml' -exec sed -i "s/\${spring.boot.version}/${version_to_check}/g" {} \;
 
       - name: Check Dynamically Provided Artifact Version
         run: |
