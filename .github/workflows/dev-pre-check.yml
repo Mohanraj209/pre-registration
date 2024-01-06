@@ -35,6 +35,6 @@ jobs:
         run: |
           # Your script or command to check dynamically provided artifact version
           version_to_check: ${{ inputs.VERSION }}
-          grep -r -E "<artifactId>[^<]+</artifactId>|<version>$version_to_check</version>" --include="pom.xml" .
+          grep -r -E "<artifactId>[^<]+</artifactId>|<version>$VERSION</version>" --include="pom.xml" .
 
 # Example command: python check_version.py 2.0.1
