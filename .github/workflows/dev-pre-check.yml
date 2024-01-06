@@ -28,7 +28,10 @@ jobs:
       - name: List Artifacts and Dependency Versions
         run: |
           # Script to list artifacts and dependency versions
-          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ && /<version>.*<\/version>/ {printf("\n")}' | grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
+          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
+          awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ && /<version>.*<\/version>/ {printf("\n")}' | \
+          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>' | \
+          awk -F: '{printf "%-70s %s\n", $1, $2}'
 
       - name: Replace Parameterized Values
         run: |
@@ -40,7 +43,8 @@ jobs:
         run: |
           # Script to check dynamically provided artifact version
           version_to_check="${{ inputs.VERSION }}"
-          if ! grep -r -E "<artifactId>io.mosip[^<]+</artifactId>|<version>${version_to_check}</version>" --include="pom.xml" . | grep "<version>${version_to_check}</version>"; then
+          if ! grep -r -E "<artifactId>io.mosip[^<]+</artifactId>|<version>${version_to_check}</version>" --include="pom.xml" . | \
+          grep "<version>${version_to_check}</version>" | awk -F: '{printf "%-70s %s\n", $1, $2}'; then
             echo "Error: Dynamically provided artifact version '${version_to_check}' not found for io.mosip artifacts."
             exit 1
           fi
