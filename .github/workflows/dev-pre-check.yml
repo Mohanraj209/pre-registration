@@ -30,8 +30,8 @@ jobs:
           # Script to list artifacts and dependency versions
           find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
           awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ && /<version>.*<\/version>/ {printf("\n")}' | \
-          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>' | \
-          awk -F: '{printf "%-70s %s\n", $1, $2}'
+          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
+
 
       - name: Replace Parameterized Values
         run: |
