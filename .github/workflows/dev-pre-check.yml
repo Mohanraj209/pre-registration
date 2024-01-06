@@ -28,9 +28,7 @@ jobs:
       - name: List Artifacts and Dependency Versions
         run: |
           # Script to list artifacts and dependency versions
-          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
-          awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ && /<version>.*<\/version>/ {printf("\n")}' | \
-          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
+          find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{getline v; print "Artifact version '${{ inputs.VERSION }}' found in " FILENAME " for artifact " v}' {} +
 
 
       - name: Replace Parameterized Values
