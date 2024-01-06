@@ -27,18 +27,20 @@ jobs:
 
       - name: List Artifacts and Dependency Versions
         run: |
-          # Your script or command to list artifacts and dependencies
-          grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' $(find . -name 'pom.xml') | awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ {printf("\n")}'
-          # Example command: python list_artifacts.py
+          # Script to list artifacts and dependency versions
+          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | awk 'BEGIN {ORS="\n"} {print} /^<artifactId>/ && /<version>.*<\/version>/ {printf("\n")}' | grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
+
+      - name: Replace Parameterized Values
+        run: |
+          # Script to replace parameterized values
+          version_to_check="${{ inputs.VERSION }}"
+          find . -name 'pom.xml' -exec sed -i "s/\${spring.boot.version}/${version_to_check}/g" {} \;
 
       - name: Check Dynamically Provided Artifact Version
         run: |
-          # Your script or command to check dynamically provided artifact version
+          # Script to check dynamically provided artifact version
           version_to_check="${{ inputs.VERSION }}"
-          if ! grep -r -E "<artifactId>[^<]+</artifactId>|<version>${version_to_check}</version>" --include="pom.xml" . | grep "<version>${version_to_check}</version>"; then
-            echo "Error: Dynamically provided artifact version '${version_to_check}' not found."
+          if ! grep -r -E "<artifactId>io.mosip[^<]+</artifactId>|<version>${version_to_check}</version>" --include="pom.xml" . | grep "<version>${version_to_check}</version>"; then
+            echo "Error: Dynamically provided artifact version '${version_to_check}' not found for io.mosip artifacts."
             exit 1
           fi
-
-
-# Example command: python check_version.py 2.0.1
