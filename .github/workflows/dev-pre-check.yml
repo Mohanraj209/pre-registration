@@ -32,8 +32,6 @@ jobs:
           xargs awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
           grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
 
-
-
       - name: Check Dynamically Provided Artifact Version
         run: |
           # Script to check dynamically provided artifact version
