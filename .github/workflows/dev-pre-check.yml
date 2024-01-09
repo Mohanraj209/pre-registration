@@ -25,13 +25,11 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Resolve Maven Placeholders
+      - name: Extract Maven Properties
+        id: extract_maven_properties
         run: |
-          placeholder_values=$(mvn help:evaluate -Dexpression=maven.compiler.version,maven.jar.plugin.version,maven.war.plugin.version,maven.surefire.plugin.version,maven.jacoco.version,maven.javadoc.version -q -DforceStdout)
-          IFS=',' read -ra values <<< "$placeholder_values"
-          for value in "${values[@]}"; do
-            export "$(echo "$value" | tr '=' ' ')"
-          done
+          MAVEN_PROPERTIES=$(awk -F '[><]' '/<properties>/{flag=1;next}/<\/properties>/{flag=0}flag{gsub(/^[ \t]+|[ \t]+$/, ""); printf "%s ", $1}END{print ""}' pre-registration/pom.xml)
+          echo "MAVEN_PROPERTIES=${MAVEN_PROPERTIES}" >> $GITHUB_ENV
 
       - name: List Artifacts and Dependency Versions
         run: |
