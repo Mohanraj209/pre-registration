@@ -30,10 +30,10 @@ jobs:
           MAVEN_COMPILER_VERSION=$(mvn help:evaluate -Dexpression=maven.compiler.version -q -DforceStdout)
           find . -name 'pom.xml' -exec sed -i "s|${{ env.MAVEN_COMPILER_VERSION }}|${MAVEN_COMPILER_VERSION}|g" {} +
 
-      - name: Replace Maven Jar Plugin Version
+      - name: Replace Maven Compiler Version
         run: |
-          MAVEN_JAR_PLUGIN_VERSION=$(mvn help:evaluate -Dexpression=maven.jar.plugin.version -q -DforceStdout)
-          find . -name 'pom.xml' -exec sed -i "s|${{ env.MAVEN_JAR_PLUGIN_VERSION }}|${MAVEN_JAR_PLUGIN_VERSION}|g" {} +
+          MAVEN_COMPILER_VERSION=$(mvn help:evaluate -Dexpression=maven.compiler.version -q -DforceStdout)
+          find . -name 'pom.xml' -exec sed -i "s|<version>${MAVEN_COMPILER_VERSION}</version>|<version>${MAVEN_COMPILER_VERSION}</version>|g" {} +
 
       # Repeat the above pattern for other properties
 
