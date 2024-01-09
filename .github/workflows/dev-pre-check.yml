@@ -25,6 +25,14 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: Resolve Maven Placeholders
+        run: |
+          placeholder_values=$(mvn help:evaluate -Dexpression=maven.compiler.version,maven.jar.plugin.version,maven.war.plugin.version,maven.surefire.plugin.version,maven.jacoco.version,maven.javadoc.version -q -DforceStdout)
+          IFS=',' read -ra values <<< "$placeholder_values"
+          for value in "${values[@]}"; do
+            export "$(echo "$value" | tr '=' ' ')"
+          done
+
       - name: List Artifacts and Dependency Versions
         run: |
           find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}' {} +
