@@ -28,8 +28,7 @@ jobs:
       - name: List Artifacts and Dependency Versions
         run: |
           # Script to list artifacts and dependency versions
-          find . -name 'pom.xml' -exec grep -E -o '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
-          xargs awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}'
+          find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}' {} +
 
       - name: Check Dynamically Provided Artifact Version
         run: |
