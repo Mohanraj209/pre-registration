@@ -38,8 +38,9 @@ jobs:
       - name: Replace Maven Properties in POM Files
         run: |
           for property in maven.compiler.version maven.jar.plugin.version maven.war.plugin.version maven.surefire.plugin.version maven.jacoco.version maven.javadoc.version; do
-            sed -i "s|${property}|${{ env.MAVEN_PROPERTIES_${property} }}|g" **/pom.xml
+            sed -i "s|${property}|${MAVEN_PROPERTIES}|g" **/pom.xml
           done
+
 
       - name: Check Dynamically Provided Artifact Version
         run: |
