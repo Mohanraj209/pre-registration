@@ -28,9 +28,8 @@ jobs:
       - name: List Artifacts and Dependency Versions
         run: |
           # Script to list artifacts and dependency versions
-          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
-          xargs awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
-          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
+          find . -name 'pom.xml' -exec grep -E -o '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
+          xargs awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}'
 
       - name: Check Dynamically Provided Artifact Version
         run: |
@@ -41,3 +40,4 @@ jobs:
             echo "Error: Dynamically provided artifact version '${version_to_check}' not found for io.mosip artifacts."
             exit 1
           fi
+
