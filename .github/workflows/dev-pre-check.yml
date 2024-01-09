@@ -35,6 +35,11 @@ jobs:
         run: |
           find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}' {} +
 
+      - name: Replace Maven Properties in POM Files
+        run: |
+          for property in maven.compiler.version maven.jar.plugin.version maven.war.plugin.version maven.surefire.plugin.version maven.jacoco.version maven.javadoc.version; do
+            sed -i "s|${property}|${{ env.MAVEN_PROPERTIES_${property} }}|g" **/pom.xml
+          done
       - name: Check Dynamically Provided Artifact Version
         run: |
           version_to_check="${{ inputs.VERSION }}"
