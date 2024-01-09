@@ -37,7 +37,7 @@ jobs:
             find . -name 'pom.xml' -exec sed -i "s|${property}|${{ env.MAVEN_PROPERTIES }}|g" {} +
           done
         env:
-          MAVEN_PROPERTIES: "**/code/**, **/config/**, **/dao/**, **/dto/**, **/entity/**, **/errorcodes/**, **/exception/**, **/exception/system/**, **/exception/util/**, **/repository/**, **/*Config.java, **/*Application.java, **/batchjob/**, **/util/**, **/stateUtil/**, **/preregistration/application
+          MAVEN_PROPERTIES: "**/code/**, **/config/**, **/dao/**, **/dto/**, **/entity/**, **/errorcodes/**, **/exception/**, **/exception/system/**, **/exception/util/**, **/repository/**, **/*Config.java, **/*Application.java, **/batchjob/**, **/util/**, **/stateUtil/**, **/preregistration/application/dto/*.java, **/preregistration/application/dto/ApplicantTypeCodeDTO.java, **/preregistration/application/dto/ApplicantTypeKeyValueDTO.java, **/preregistration/datasync/dto/*.java, **/preregistration/booking/dto/*.java"
 
       - name: List Artifacts and Dependency Versions
         run: |
