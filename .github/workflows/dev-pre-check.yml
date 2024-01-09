@@ -31,16 +31,18 @@ jobs:
           MAVEN_PROPERTIES=$(awk -F '[><]' '/<properties>/{flag=1;next}/<\/properties>/{flag=0}flag{gsub(/^[ \t]+|[ \t]+$/, ""); printf "%s ", $1}END{print ""}' pre-registration/pom.xml)
           echo "MAVEN_PROPERTIES=${MAVEN_PROPERTIES}" >> $GITHUB_ENV
 
-      - name: List Artifacts and Dependency Versions
-        run: |
-          find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}' {} +
-
       - name: Replace Maven Properties in POM Files
         run: |
           for property in maven.compiler.version maven.jar.plugin.version maven.war.plugin.version maven.surefire.plugin.version maven.jacoco.version maven.javadoc.version; do
-            sed -i "s|${property}|${MAVEN_PROPERTIES}|g" **/pom.xml
+            find . -name 'pom.xml' -exec sed -i "s|${property}|${{ env.MAVEN_PROPERTIES }}|g" {} +
           done
+        env:
+          MAVEN_PROPERTIES: |
+            **/code/**, **/config/**, **/dao/**, **/dto/**, **/entity/**, **/errorcodes/**, **/exception/**, **/exception/system/**, **/exception/util/**, **/repository/**, **/*Config.java, **/*Application.java, **/batchjob/**, **/util/**, **/stateUtil/**, **/preregistration/application/dto/*.java, **/preregistration/application/dto/ApplicantTypeCodeDTO.java, **/preregistration/application/dto/ApplicantTypeKeyValueDTO.java, **/preregistration/datasync/dto/*.java, **/preregistration/booking/dto/*.java          
 
+      - name: List Artifacts and Dependency Versions
+        run: |
+          find . -name 'pom.xml' -exec awk -F'[><]' '/<artifactId>io.mosip/{artifact=$3} /<version>/{printf("Artifact version %s found in %s for artifact %s\n", $3, FILENAME, artifact)}' {} +
 
       - name: Check Dynamically Provided Artifact Version
         run: |
