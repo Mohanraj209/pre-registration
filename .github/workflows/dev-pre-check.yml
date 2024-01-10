@@ -25,9 +25,10 @@ jobs:
           pwd
           ls
           # Script to list artifacts and dependency versions
-          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
-          awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
-          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
+          find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>|<property>[^<]+</property>' {} \; | \
+          awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /^<property>/ {property=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
+          grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>|<property>[^<]+</property>'
+
       - name: Check Dynamically Provided Artifact Version
         run: |
           # Script to check dynamically provided artifact version
