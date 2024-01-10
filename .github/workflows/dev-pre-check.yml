@@ -33,18 +33,6 @@ jobs:
           xargs awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
           grep -E '<artifactId>io.mosip[^<]+</artifactId>|<version>[^<]+</version>'
 
-      - name: Replace Maven Compiler Version
-        run: |
-          MAVEN_COMPILER_VERSION=$(mvn help:evaluate -Dexpression=maven.compiler.version -q -DforceStdout)
-          find . -name 'pom.xml' -exec sed -i "s|${{ env.MAVEN_COMPILER_VERSION }}|${MAVEN_COMPILER_VERSION}|g" {} +
-
-      - name: Replace Maven Compiler Version
-        run: |
-          MAVEN_COMPILER_VERSION=$(mvn help:evaluate -Dexpression=maven.compiler.version -q -DforceStdout)
-          for pom_file in $(find . -name 'pom.xml'); do
-            sed -i "s|<version>\${maven.compiler.version}</version>|<version>${MAVEN_COMPILER_VERSION}</version>|g" "$pom_file"
-          done
-
       - name: Check Dynamically Provided Artifact Version
         run: |
           version_to_check="${{ inputs.VERSION }}"
