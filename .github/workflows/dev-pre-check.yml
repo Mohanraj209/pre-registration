@@ -22,6 +22,8 @@ jobs:
           java-version: '11'
       - name: List Artifacts and Dependency Versions
         run: |
+          pwd
+          ls
           # Script to list artifacts and dependency versions
           find . -name 'pom.xml' -exec grep -E -o '<artifactId>[^<]+</artifactId>|<version>[^<]+</version>' {} \; | \
           awk 'BEGIN {ORS="\n"} /^<artifactId>/ {artifact=$0} /<version>/ {printf("Artifact version %s found in %s for artifact %s\n", $0, FILENAME, artifact)}' | \
